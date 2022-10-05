@@ -51,7 +51,8 @@ Build or use 'cctools' from [Musl-LFS](https://github.com/dslm4515/Musl-LFS) to 
 
 ## Change log
 <ul>
-<li>0.1.1: [pending]  Build stage 1 clang by building clang, lld, compiler-rt, libunwind, libcxxabi, libcxx together in llvm source tree</li>
+<li>0.1.2: [ pending ] Use stage0 to build a stage1 clang...Stage1 clang will be used in chroot</li>
+<li>0.1.1: Build stage 1 clang by building clang, lld, compiler-rt, libunwind, libcxxabi, libcxx together in llvm source tree</li>
 <li>0.1.0: Build cctools with GCC to build stage 1 clang... first build libunwind, libcxxabi & libcxx - stage1 Clang broken</li>
 <li>0.0.0: First attempt, modeled afer Genshen's repo: Stage 2 clang fails to build.</li>
 </ul>

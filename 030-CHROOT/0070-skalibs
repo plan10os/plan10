@@ -1,0 +1,14 @@
+# Final System: Skalibs
+# Source: https://skarnet.org/software/skalibs/skalibs-2.12.0.1.tar.gz
+# This section is done in Chroot environment
+
+# Configure source
+./configure --prefix=/usr       \
+            --build=${TUPLE}   \
+            --enable-static     \
+            --enable-shared     \
+            --libdir=/usr/lib
+
+# Build and Install
+make
+make install

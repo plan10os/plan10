@@ -1,4 +1,4 @@
-# Build clang/clang++ with compiler-rt and lld
+# Build a stage0 clang/clang++ with compiler-rt and lld
 
 cd ${LLVMSRC}
 # make sure compiler-rt, libcxx, libcxxabi, libunwind are unpacking ${LLVMSRC}/projects
@@ -77,18 +77,24 @@ cmake -B build -G Ninja  \
       -DLLVM_ENABLE_LIBCXX=ON \
       -DCLANG_DEFAULT_LINKER="/cgnutools/bin/ld.lld" \
       -DBacktrace_HEADER="/cgnutools/include/execinfo.h" \
-      -DCMAKE_EXE_LINKER_FLAGS="--sysroot="/cgnutools" -Wl,-rpath,/cgnutools/lib" \
-      -DCMAKE_SHARED_LINKER_FLAGS="--sysroot="/cgnutools" -Wl,-rpath,/cgnutools/lib"
- 
+      -DCMAKE_EXE_LINKER_FLAGS="-Wl,-dynamic-linker /cgnutools/lib/ld-musl-x86_64.so.1" \
+      -DCMAKE_SHARED_LINKER_FLAGS="-Wl,-dynamic-linker /cgnutools/lib/ld-musl-x86_64.so.1" \
+      -DBacktrace_LIBRARY="/cgnutools/lib/libexecinfo.so.1"
 
-# For some reason, execinof.h cannot be found. Hard code it.
-# from #include <execinfo.h> to #include "/cgnutools/include/execinfo.h"
-#vi build/include/llvm/Config/config.h
-# ^ fixed with -DBacktrace_HEADER
 
+# Now ready to build
 ninja -C build         && \
 ninja -C build install && \ 
 rm -rf build
+
+# Configure clang to build binaries with /llvmtools/lib/ld-musl-x86_64.so.1 instead
+# of /lib/ld-musl-x86_64.so.1. This is similar in Musl-LFS/LFS when gcc specs 
+# file is modified to use the  dynamic linker in /tools instead of host's /lib
+ln -sv clang-11   /cgnutools/bin/x86_64-pc-linux-musl-clang
+ln -sv clang-11   /cgnutools/bin/x86_64-pc-linux-musl-clang++
+cat > /cgnutools/bin/x86_64-pc-linux-musl.cfg << "EOF"
+-Wl,-dynamic-linker /llvmtools/lib/ld-musl-x86_64.so.1
+EOF
 
 export PATH=/cgnutools/bin:/llvmtools/bin:/bin:/usr/bin
 

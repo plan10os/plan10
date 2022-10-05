@@ -1,0 +1,150 @@
+Source material:
+  http://security.stackexchange.com/questions/24444/what-is-the-most-hardened-set-of-options-for-gcc-compiling-c-c
+  https://wiki.gentoo.org/wiki/Hardened_Gentoo
+  https://wiki.debian.org/Hardening
+
+================================================================================================================>
+GCC Security related flags and options:
+
+CFLAGS="-fPIE -fstack-protector-all -D_FORTIFY_SOURCE=2" 
+LDFLAGS="-Wl,-z,now -Wl,-z,relro"
+  Hardened gentoo default flags.
+  
+-Wall -Wextra
+  Turn on all warnings.
+
+-Wconversion -Wsign-conversion
+  Warn on unsign/sign conversions.
+
+-Wformat-security
+  Warn about uses of format functions that represent possible security problems
+
+-Werror
+  Turns all warnings into errors.
+
+-arch x86_64
+  Compile for 64-bit to take max advantage of address space (important for ASLR; more virtual address space to chose from when randomising layout).
+
+-fstack-protector-all -Wstack-protector --param ssp-buffer-size=4
+  Your choice of "-fstack-protector" does not protect all functions (see comments). You need -fstack-protector-all to guarantee guards are applied to all functions, although this will likely incur a performance penalty. Consider -fstack-protector-strong as a middle ground.
+  The -Wstack-protector flag here gives warnings for any functions that aren't going to get protected.
+
+-pie -fPIE
+  For ASLR
+
+-ftrapv
+  Generates traps for signed overflow (currently bugged in gcc)
+
+-­D_FORTIFY_SOURCE=2 ­O2
+  Buffer overflow checks. See also difference between =2 and =1
+
+­-Wl,-z,relro,-z,now
+  RELRO (read-only relocation). The options relro & now specified together are known as "Full RELRO". You can specify "Partial RELRO" by omitting the now flag. RELRO marks various ELF memory sections read­only (E.g. the GOT)
+
+If compiling on Windows, please Visual Studio instead of GCC, as some protections for Windows (ex. SEHOP) are not part of GCC, but if you must use GCC:
+
+-Wl,dynamicbase
+  Tell linker to use ASLR protection
+
+-Wl,nxcompat
+  Tell linker to use DEP protection
+
+>>>
+
+From https://wiki.debian.org/Hardening#Notes_on_Memory_Corruption_Mitigation_Methods
+
+User Space:
+----------
+Stack Protector
+  gcc's -fstack-protector attempts to detect when a stack has been overwritten and aborts the program. Ubuntu has had this enabled by default since Edgy. Some programs do not play nice with it, and can be worked around with -fno-stack-protector. It would be nice to enable this by default, and for gcc to only attempt to use it when libc is being linked against.
+  already done in sendmail.
+
+heap protection
+  In glibc2.5, no additional work needed.
+
+libc pointer encryption
+  In mainline glibc, as PTR_MANGLE.
+
+gcc -D_FORTIFY_SOURCE=2 -O1
+  Compile-time protection against static sized buffer overflows. No known regressions or performance loss. This should be enabled system-wide
+
+gcc -Wformat -Wformat-security
+  While not all programs correctly implement the printf hints (like glib's G_GNUC_PRINTF macro), adding this will at least call out simple printf format string vulnerabilities. Any programs whose builds become "noisy" as a result, should be fixed anyway.
+
+gcc -pie -fPIE
+  This is especially difficult to plumb into packaging in a safe way, since it requires the executable be built with -fPIE for any .o files that are linked at the end with -pie. There is some amount of performance loss, but only due to the -fPIE, which is already true for all the linked libraries (via their -fPIC).
+  Already done with openssh, sendmail.
+
+ld -z relro
+  (Or via gcc with -Wl,-z,relro) Already done with sendmail.
+
+ld -z now
+  (Or via gcc with -Wl,-z,now).
+
+Kernel Space:
+------------
+non-exec memory segmentation (ExecShield)
+  Stops execution of code in heap/stack. i386 specific (nx already does this for amd64), and introduces some small level of performance loss (5% for CPU-bound). Some people have worked on getting it pushed into the mainline kernel. Current state unknown -- would be very handy to have due to the popularity of i386. Marcus Better may be willing to continue to maintain the patchset for Debian.
+  Some applications appear to break when run in the protected memory layout. Most of these issues should be fixed due to RH (and SUSE?) already running with these protections.
+  Additional work for user-space is identifying programs that build assembly but fail to explicitly mark their stack as non-exec (gnupg, for example).
+
+-fstack-protector
+  Is available for amd64 builds:
+  config CC_STACKPROTECTOR 
+
+runtime memory allocation validation
+  Detect double-frees in kernel space. No idea where it stands.
+
+Address Space Layout Randomization
+  mmap: in mainline
+  stack: in mainline
+  vdso: in since 2.6.18 (COMPAT_VDSO disables it)
+  heap/exec: in -mm, 2.6.24
+  brk: 2.6.25 
+
+Having heap/exec ASLR is a prerequisite for -pie being useful. Presently, openssh is compiled with -pie.
+  /proc/$pid/maps protection
+
+Present in 2.6.22; requires sysctl toggle (kernel.maps_protect = 1). Became non-optional in 2.6.27
+  /dev/mem protection
+
+Included in 2.6.25.
+  link protections
+
+In Linux 3.6, and enabled by default! https://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=commitdiff;h=800179c9b8a1e796e441674776d11cd4c05d61d7
+  in sysctl via protected_hardlinks and proctected_symlinks
+
+From the GRSecurity patchset, protections against hardlink/symlink creation/following in world-writable areas. (Solves tmp races.) May potentially break things like postfix that manipulation hardlinks? Breaks POSIX. Getting taken in mainline may be tpossible with a build-time or proc toggle.
+  http://lkml.org/lkml/2005/3/10/101 http://lkml.org/lkml/2005/4/18/167
+
+chroot, dmesg, fifo protections
+  Also from GRSecurity patchset.
+
+References(from hardened gentoo page):
+  https://wiki.ubuntu.com/CompilerFlags
+  http://people.redhat.com/drepper/nonselsec.pdf
+  http://www.suse.de/~krahmer/no-nx.pdf
+  http://www.neworder.box.sk/newsread.php?newsid=13007
+  http://www.hackinthebox.org/modules.php?op=modload&name=News&file=article&sid=15604&mode=thread&order=0&thold=0
+  http://www.phrack.org/archives/issues/58/4.txt
+  http://insecure.org/sploits/non-executable.stack.problems.html
+  http://www.phrack.org/archives/issues/59/9.txt
+  http://www.coresecurity.com/files/attachments/Richarte_Stackguard_2002.pdf
+  http://www.redhat.com/archives/fedora-tools-list/2004-September/msg00002.html
+  http://www.gentoo.org/proj/en/hardened/hardened-toolchain.xml
+  http://labs.mwrinfosecurity.com/notices/security_mechanisms_in_linux_environment__part_1___userspace_memory_protection/
+  http://labs.mwrinfosecurity.com/notices/assessing_the_tux_strength_part_2_into_the_kernel/
+
+
+  -Wall -Wextra -Wformat -Wformat-security -Werror 
+  -mmitigate-rop -Wstack-protector -fstack-protector-all
+  --param=ssp-buffer-size=4 -fstack-clash-protection 
+  -pie -fPIE -D_FORTIFY_SOURCE=2 
+  -Wl,-z,relro -Wl,dynamicbase -Wl,nxcompat
+
+
+  LDFLAGS
+  -Wl,-pie
+  -Wl,-z,now
+  -Wl,-z,relro
+  -Wl,--hash-style=both -Wl,--no-copy-dt-needed-entries -Wl,--as-needed

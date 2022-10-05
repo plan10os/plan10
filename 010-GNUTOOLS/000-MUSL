@@ -1,0 +1,17 @@
+cd /mnt/plan10/sources/musl-1.2.3
+
+./configure \
+  CROSS_COMPILE=${PLAN10_TARGET}- \
+  --prefix=/ \
+  --target=${PLAN10_TARGET}
+
+make && make DESTDIR=/cgnutools install
+
+rm -v /cgnutools/lib/ld-musl-x86_64.so.1
+ln -sv libc.so /cgnutools/lib/ld-musl-x86_64.so.1
+mkdir /cgnutools/{bin,etc}
+ln -sv ../lib/libc.so /cgnutools/bin/ldd
+
+cat > /cgnutools/etc/ld-musl-x86_64.path << "EOF"
+/cgnutools/lib
+EOF

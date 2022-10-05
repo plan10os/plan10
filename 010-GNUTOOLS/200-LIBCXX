@@ -1,0 +1,25 @@
+cd libcxx
+
+cmake -B build -G Ninja \
+      -DCMAKE_INSTALL_PREFIX="/cgnutools" \
+      -DCMAKE_C_COMPILER="${CMLFS_TARGET}-gcc"     \
+      -DCMAKE_CXX_COMPILER="${CMLFS}-g++" \
+      -DCMAKE_SHARED_LINKER_FLAGS="-L/cgnutools/lib" \
+      -DLIBCXX_ENABLE_SHARED=ON \
+      -DLIBCXX_ENABLE_STATIC=ON  \
+      -DLIBCXX_HAS_MUSL_LIBC=ON \
+      -DLIBCXX_HAS_GCC_S_LIB=OFF \
+      -DLIBCXXABI_ENABLE_STATIC=ON \
+      -DLIBCXXABI_USE_LLVM_UNWINDER=ON \
+      -DLIBCXX_CXX_ABI=libcxxabi \
+      -DLIBCXX_CXX_ABI_INCLUDE_PATHS="${LLVMSRC}/libcxxabi/include" \
+      -DLLVM_PATH="${LLVMSRC}/llvm"
+
+ninja -C build
+ninja -C build install
+rm -rf build
+
+# Link libcxx to final toolchain. Libraries will be replaced once
+# libcxx is rebuilt with clang
+ln -sv /cgnutools/lib/libc++*      /llvmtools/lib/
+ln -sv /cgnutools/include/c++      /llvmtools/include/

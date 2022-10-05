@@ -1,7 +1,5 @@
-<<<<<<< HEAD
 # plan10
 =======
-# CMLFS - Clang Musl Linux From Scratch
 This is based on Linux From Scratch (www.linuxfromscratch.org) but with the goal of building a system with clang & friends from LLVM and Musl Libc.
 ## Specification
 <ul>
@@ -60,4 +58,3 @@ _Final clang binary will not compile and links to host's runtime libc_
 <li>Genshen's docker-clang-toolchain - https://github.com/genshen/docker-clang-toolchain</li>
 <li>Build a freestanding libc++ - https://blogs.gentoo.org/gsoc2016-native-clang/2016/05/05/build-a-freestanding-libcxx/ </li>
 </ul>
->>>>>>> b9dbad3 (initial commit)

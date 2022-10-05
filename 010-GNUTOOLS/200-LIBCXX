@@ -1,19 +1,23 @@
-cd libcxx
+cp -v /cc-tools/${PLAN10_TARGET}/lib/libgcc_s.so.1 \
+       /cgnutools/lib/
+
+cd ${LLVMSRC}/projects/libcxx
 
 cmake -B build -G Ninja \
       -DCMAKE_INSTALL_PREFIX="/cgnutools" \
-      -DCMAKE_C_COMPILER="${CMLFS_TARGET}-gcc"     \
-      -DCMAKE_CXX_COMPILER="${CMLFS}-g++" \
+      -DCMAKE_C_COMPILER="${PLAN10_TARGET}-gcc"     \
+      -DCMAKE_CXX_COMPILER="${PLAN10_TARGET}-g++" \
       -DCMAKE_SHARED_LINKER_FLAGS="-L/cgnutools/lib" \
       -DLIBCXX_ENABLE_SHARED=ON \
       -DLIBCXX_ENABLE_STATIC=ON  \
       -DLIBCXX_HAS_MUSL_LIBC=ON \
-      -DLIBCXX_HAS_GCC_S_LIB=OFF \
+      -DLIBCXX_HAS_GCC_S_LIB=ON \
       -DLIBCXXABI_ENABLE_STATIC=ON \
       -DLIBCXXABI_USE_LLVM_UNWINDER=ON \
       -DLIBCXX_CXX_ABI=libcxxabi \
-      -DLIBCXX_CXX_ABI_INCLUDE_PATHS="${LLVMSRC}/libcxxabi/include" \
-      -DLLVM_PATH="${LLVMSRC}/llvm"
+      -DLIBCXX_CXX_ABI_LIBRARY_PATH="/cgnutools/lib" \
+      -DLIBCXX_CXX_ABI_INCLUDE_PATHS="/cgnutools/include" \
+      -DLLVM_PATH="${LLVMSRC}"
 
 ninja -C build
 ninja -C build install

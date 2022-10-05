@@ -27,6 +27,7 @@ _Other arches will be supported after first successive build._
 ## Goals
 <ul>
 <li> [ ] Build a toolchain with LLVM but without GCC</li>
+<li> [x] Build a toolchain (llvmtools) with LLVM but without GCC</li>
 <li> [ ] Build final root filesystem with LLVM</li>
 <li> [ ] Set default linker as lld(LLVM)</li>
 <li> [ ] Set default C++ standard library as libcxx(LLVM)</li>
@@ -43,6 +44,7 @@ Build or use 'cctools' from [Musl-LFS](https://github.com/dslm4515/Musl-LFS) to 
 <li>Build a stage0 clang with GCC libraries with `cctools`: build clang via llvm source with clang+lld unpacked in `llvm/tools` and libunwind, libcxxabi & libcxx in `lvm/projects`.</li>
 <li>Build individually in LLVM source tree libunwind, libcxxabi and libcxx with stage0 clang. </li>
 <li>Build a new stage1 clang with stage0 clang. This new stage1 clang will not have GCC libraries</li>
+<li>Using stage1 clang, build toolchain for use in chroot</li>
 <li>Build final root filesystem in chroot with stage1 clang</li>
 </ol>
 
@@ -53,7 +55,7 @@ Build or use 'cctools' from [Musl-LFS](https://github.com/dslm4515/Musl-LFS) to 
 
 ## Change log
 <ul>
-<li>0.1.3: configure Stage1 clang correctly with x86_64-pc-linux-mul.cfg.</li>
+<li>0.1.3: configure Stage1 clang correctly with x86_64-pc-linux-musl.cfg.</li>
 <li>0.1.2: Use stage0 to build a stage1 clang...Stage1 clang will be used in chroot</li>
 <li>0.1.1: Build stage 1 clang by building clang, lld, compiler-rt, libunwind, libcxxabi, libcxx together in llvm source tree</li>
 <li>0.1.0: Build cctools with GCC to build stage 1 clang... first build libunwind, libcxxabi & libcxx - stage1 Clang broken</li>

@@ -37,15 +37,19 @@ Uses the large source archive that includes all LLVM source like clang, compiler
 
 _Final clang binary will not compile and links to host's runtime libc_
 
+Build or use 'cross-tools' from [Musl-LFS](https://github.com/dslm4515/Musl-LFS) to cross-compile clang to _not_ link against host's runtime libc. This clang will still link to `libgcc_s` but will later be used to build a clang free of `libbgcc_s`
 <ol>
 <li>Stage 0: Build `cc-tools` with GCC</li>
-<li>Stage 1: Build clang with GCC libraries with `cc-tools`</li>
-<li>Stage 2: Build new clang with old clang. This clang will not have GCC libraries</li>
-<li>Stage 3: Build final root filesystem in chroot</li>
+<li>Stage 1: Build clang with GCC libraries with `cc-tools`...~~build libunwind, libcxxabi, libcxx, clang+lld+compiler-rt individually~~ build clang via llvm source with cland+lld unpacked in `llvm/tools` and libunwind, libcxxabi & libcxx in `lvm/projects`.</li>
+<li>Stage 3: Build libunwind, libcxxabi and libcxx with stage 1 clang. </li>
+<li>Stage 4: Build new clang with stage1 clang. This new clang will not have GCC libraries</li>
+<li>Stage 5: Build final root filesystem in chroot</li>
 </ol>
 ## Issues
 <ul>
-<li>None at the moment, still testing</li>
+<li>Clang requires execinfo.h - Added libexecinfo to build</li>
+<li>Building clang fails with missing execinfo.h - Hard coded by hand</li>
+<li>Stage 1 clang is broken...Perhaps libunwind, libcxxabi, & libcxx should not have been built seperately?
 </ul>
 ## Change log
 <ul>

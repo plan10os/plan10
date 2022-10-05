@@ -1,6 +1,7 @@
 # plan10
 =======
 This is based on Linux From Scratch (www.linuxfromscratch.org) but with the goal of building a system with clang & friends from LLVM and Musl Libc.
+
 ## Specification
 <ul>
 <li>C Runtime Library (system libc): Musl </li>
@@ -16,8 +17,11 @@ This is based on Linux From Scratch (www.linuxfromscratch.org) but with the goal
 <li>System Shell: Bash </li>
 <li>System Gettext: gettext-tiny</li>
 </ul>
+
 ## Supported Architectures
+
 AMD64/x86_64
+
 _Other arches will be supported after first successive build._
 
 ## Goals
@@ -37,7 +41,7 @@ Build or use 'cctools' from [Musl-LFS](https://github.com/dslm4515/Musl-LFS) to 
 <ol>
 <li>Build `cctools` with GCC</li>
 <li>Build a stage0 clang with GCC libraries with `cctools`: build clang via llvm source with clang+lld unpacked in `llvm/tools` and libunwind, libcxxabi & libcxx in `lvm/projects`.</li>
-<li>Build individually in LLVm source tree libunwind, libcxxabi and libcxx with stage0 clang. </li>
+<li>Build individually in LLVM source tree libunwind, libcxxabi and libcxx with stage0 clang. </li>
 <li>Build a new stage1 clang with stage0 clang. This new stage1 clang will not have GCC libraries</li>
 <li>Build final root filesystem in chroot with stage1 clang</li>
 </ol>
@@ -45,13 +49,12 @@ Build or use 'cctools' from [Musl-LFS](https://github.com/dslm4515/Musl-LFS) to 
 ## Issues
 <ul>
 <li>Clang requires `execinfo.h` - Added libexecinfo to build</li>
-<li>Building clang fails with missing execinfo.h - Hard coded by hand</li>
-<li>Stage 1 clang is broken...Perhaps libunwind, libcxxabi, & libcxx should not have been built seperately?
 </ul>
 
 ## Change log
 <ul>
-<li>0.1.2: [ pending ] Use stage0 to build a stage1 clang...Stage1 clang will be used in chroot</li>
+<li>0.1.3: configure Stage1 clang correctly with x86_64-pc-linux-mul.cfg.</li>
+<li>0.1.2: Use stage0 to build a stage1 clang...Stage1 clang will be used in chroot</li>
 <li>0.1.1: Build stage 1 clang by building clang, lld, compiler-rt, libunwind, libcxxabi, libcxx together in llvm source tree</li>
 <li>0.1.0: Build cctools with GCC to build stage 1 clang... first build libunwind, libcxxabi & libcxx - stage1 Clang broken</li>
 <li>0.0.0: First attempt, modeled afer Genshen's repo: Stage 2 clang fails to build.</li>

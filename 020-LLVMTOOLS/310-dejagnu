@@ -1,0 +1,21 @@
+# Toolchain: DejaGNU
+# Build and install as mlfs
+# Can be optional: Package used for testing final system packages
+# *No need to use latest version, so far. If so, patches need updating.*
+
+# Set the environment for cross-compiling if not done already.
+CC="${PLAN10_TARGET}-gcc"
+CXX="${PLAN10_TARGET}-g++"
+AR="${PLAN10_TARGET}-ar"
+AS="${PLAN10_TARGET}-as"
+RANLIB="${PLAN10_TARGET}-ranlib"
+LD="${PLAN10_TARGET}-ld"
+STRIP="${PLAN10_TARGET}-strip"
+
+# Configure source
+./configure --build=${PLAN10_HOST} \
+            --host=${PLAN10_TARGET} \
+            --prefix=/llvmtools
+
+# Build and install to toolchain
+make && make install

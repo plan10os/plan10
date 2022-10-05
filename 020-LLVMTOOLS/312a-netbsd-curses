@@ -1,0 +1,15 @@
+# Toolchain: NetBSD-curses
+# Build and install as mlfs
+
+# There is no configure script 
+CC="${PLAN10_TARGET}-gcc"  \
+CXX="${PLAN10_TARGET}-g++" \
+AR="${PLAN10_TARGET}-ar"   \
+AS="${PLAN10_TARGET}-as"   \
+RANLIB="${PLAN10_TARGET}-ranlib" \
+LD="${PLAN10_TARGET}-ld"   \
+STRIP="${PLAN10_TARGET}-strip"    \
+PREFIX=/llvmtools make all
+
+# Install to /llvmtools
+make PREFIX=/llvmtools all install

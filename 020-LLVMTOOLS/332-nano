@@ -1,0 +1,16 @@
+# Toolchain: nano
+# Build and install as mlfs
+# Optional package: Text editor for convenience or trouble shooting
+# ** Nano fails to build, as it is hardcoded to use host's headers. **
+# ** Can be built in chroot, if desired.**
+
+# Once in chroot ...
+# Configure source
+./configure --prefix=/llvmtools \
+            --build=${PLAN10_HOST} \
+            --host=${PLAN10_TARGET} \
+            --enable-tiny
+
+# Build and install to toolchain
+make && make install
+

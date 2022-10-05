@@ -1,0 +1,23 @@
+# Toolchain: Findutils
+# Build and install as mlfs
+
+# Set the environment for cross-compiling if not done already.
+CC="${PLAN10_TARGET}-gcc"
+CXX="${PLAN10_TARGET}-g++"
+AR="${PLAN10_TARGET}-ar"
+AS="${PLAN10_TARGET}-as"
+RANLIB="${PLAN10_TARGET}-ranlib"
+LD="${PLAN10_TARGET}-ld"
+STRIP="${PLAN10_TARGET}-strip"
+
+sed -i 's/IO_ftrylockfile/IO_EOF_SEEN/' gl/lib/*.c               &&
+sed -i '/unistd/a #include <sys/sysmacros.h>' gl/lib/mountlist.c &&
+echo "#define _IO_IN_BACKUP 0x100" >> gl/lib/stdio-impl.h
+
+# Configure source
+./configure --prefix=/llvmtools \
+            --build=${PLAN10_HOST} \
+            --host=${PLAN10_TARGET}
+
+# Build and install to toolchain
+make && make install

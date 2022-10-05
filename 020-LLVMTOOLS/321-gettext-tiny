@@ -1,0 +1,15 @@
+# Toolchain: Gettext-tiny
+# Build and install as mlfs
+
+# Set the environment for cross-compiling if not done already.
+CC="${PLAN10_TARGET}-gcc"
+CXX="${PLAN10_TARGET}-g++"
+AR="${PLAN10_TARGET}-ar"
+AS="${PLAN10_TARGET}-as"
+RANLIB="${PLAN10_TARGET}-ranlib"
+LD="${PLAN10_TARGET}-ld"
+STRIP="${PLAN10_TARGET}-strip"
+
+# Build and install to toolchain
+make ${MJ} LIBINTL=MUSL prefix=/llvmtools      
+cp -v msgfmt msgmerge xgettext /llvmtools/bin 

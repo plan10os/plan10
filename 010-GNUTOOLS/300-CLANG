@@ -2,7 +2,7 @@
 
 cd ${LLVMSRC}
 # make sure compiler-rt, libcxx, libcxxabi, libunwind are unpacking ${LLVMSRC}/projects
-# and clang & lld in ${LLVMSRC}/tools
+# and clang & lld in ${LLVMSRC}/llvmtools
 
 # Fix typo in libcxx
 cd projects/libcxx
@@ -18,7 +18,7 @@ patch -Np1 -i ../src/patches/llvm11-void/llvm-004-override-opt.patch
 patch -Np1 -i ../src/patches/llvm11-void/llvm-005-ppc-bigpic.patch
 patch -Np1 -i ../src/patches/llvm11-void/llvm-006-aarch64-mf_exec.patch
 
-cd tools/clang
+cd llvmtools/clang
 
 patch -Np1 -i ../../../src/patches/llvm11-void/clang-001-fix-unwind-chain-inclusion.patch
 patch -Np1 -i ../../../src/patches/llvm11-void/clang-001-ppcle.patch
@@ -42,12 +42,12 @@ cp -v ../files/config.guess cmake/
 #CC=x86_64-mlfs-linux-musl-gcc CXX=x86_64-mlfs-linux-musl-g++ \
 #cmake ../.. -DCMAKE_BUILD_TYPE=Release
 #make -C utils/TableGen
-#make -C tools/clang/utils/TableGen
+#make -C llvmtools/clang/utils/TableGen
 
 
 cmake -B build -G Ninja  \
       -DCMAKE_BUILD_TYPE=MinSizeRel \
-      -DCMAKE_INSTALL_PREFIX="/cgnutools" \
+      -DCMAKE_INSTALL_PREFIX="/cgnullvmtools" \
       -DCMAKE_C_COMPILER="${PLAN10_TARGET}-gcc" \
       -DCMAKE_CXX_COMPILER="${PLAN10_TARGET}-g++" \ 
       -DLLVM_BUILD_TESTS=OFF \
@@ -71,15 +71,15 @@ cmake -B build -G Ninja  \
       -DCLANG_DEFAULT_CXX_STDLIB=libc++ \ 
       -DCLANG_DEFAULT_UNWINDLIB=libunwind \
       -DCLANG_DEFAULT_RTLIB=compiler-rt \
-      -DICONV_LIBRARY_PATH="/cgnutools/lib/libc.so" \
-      -DDEFAULT_SYSROOT="/cgnutools" \
+      -DICONV_LIBRARY_PATH="/cgnullvmtools/lib/libc.so" \
+      -DDEFAULT_SYSROOT="/cgnullvmtools" \
       -DLIBCXX_HAS_MUSL_LIBC=ON \
       -DLLVM_ENABLE_LIBCXX=ON \
-      -DCLANG_DEFAULT_LINKER="/cgnutools/bin/ld.lld" \
-      -DBacktrace_HEADER="/cgnutools/include/execinfo.h" \
-      -DCMAKE_EXE_LINKER_FLAGS="-Wl,-dynamic-linker /cgnutools/lib/ld-musl-x86_64.so.1" \
-      -DCMAKE_SHARED_LINKER_FLAGS="-Wl,-dynamic-linker /cgnutools/lib/ld-musl-x86_64.so.1" \
-      -DBacktrace_LIBRARY="/cgnutools/lib/libexecinfo.so.1"
+      -DCLANG_DEFAULT_LINKER="/cgnullvmtools/bin/ld.lld" \
+      -DBacktrace_HEADER="/cgnullvmtools/include/execinfo.h" \
+      -DCMAKE_EXE_LINKER_FLAGS="-Wl,-dynamic-linker /cgnullvmtools/lib/ld-musl-x86_64.so.1" \
+      -DCMAKE_SHARED_LINKER_FLAGS="-Wl,-dynamic-linker /cgnullvmtools/lib/ld-musl-x86_64.so.1" \
+      -DBacktrace_LIBRARY="/cgnullvmtools/lib/libexecinfo.so.1"
 
 
 # Now ready to build
@@ -87,16 +87,16 @@ ninja -C build         && \
 ninja -C build install && \ 
 rm -rf build
 
-# Configure clang to build binaries with /llvmtools/lib/ld-musl-x86_64.so.1 instead
+# Configure clang to build binaries with /llvmllvmtools/lib/ld-musl-x86_64.so.1 instead
 # of /lib/ld-musl-x86_64.so.1. This is similar in Musl-LFS/LFS when gcc specs 
-# file is modified to use the  dynamic linker in /tools instead of host's /lib
-ln -sv clang-11   /cgnutools/bin/x86_64-pc-linux-musl-clang
-ln -sv clang-11   /cgnutools/bin/x86_64-pc-linux-musl-clang++
-cat > /cgnutools/bin/x86_64-pc-linux-musl.cfg << "EOF"
--Wl,-dynamic-linker /llvmtools/lib/ld-musl-x86_64.so.1
+# file is modified to use the  dynamic linker in /llvmtools instead of host's /lib
+ln -sv clang-11   /cgnullvmtools/bin/x86_64-pc-linux-musl-clang
+ln -sv clang-11   /cgnullvmtools/bin/x86_64-pc-linux-musl-clang++
+cat > /cgnullvmtools/bin/x86_64-pc-linux-musl.cfg << "EOF"
+-Wl,-dynamic-linker /llvmllvmtools/lib/ld-musl-x86_64.so.1
 EOF
 
-export PATH=/cgnutools/bin:/llvmtools/bin:/bin:/usr/bin
+export PATH=/cgnullvmtools/bin:/llvmllvmtools/bin:/bin:/usr/bin
 
 
 # Build options:
@@ -105,7 +105,7 @@ export PATH=/cgnutools/bin:/llvmtools/bin:/bin:/usr/bin
 # CLANG_BUILD_EXAMPLES=OFF
 # CLANG_BUILD_TOOLS=ON
 # CLANG_DEFAULT_CXX_STDLIB=libc++
-# CLANG_DEFAULT_LINKER="/cgnutools/bin/ld.lld"
+# CLANG_DEFAULT_LINKER="/cgnullvmtools/bin/ld.lld"
 # CLANG_DEFAULT_OBJCOPY=objcopy
 # CLANG_DEFAULT_OPENMP_RUNTIME=libomp
 # CLANG_DEFAULT_RTLIB=compiler-rt
@@ -122,7 +122,7 @@ export PATH=/cgnutools/bin:/llvmtools/bin:/bin:/usr/bin
 # CLANG_SPAWN_CC1=OFF
 # CLANG_TOOL_HANDLE_CXX_BUILD=ON
 # CLANG_TOOL_HANDLE_LLVM_BUILD=ON
-# CMAKE_INSTALL_PREFIX=/cgnutools
+# CMAKE_INSTALL_PREFIX=/cgnullvmtools
 # COMPILER_RT_BAREMETAL_BUILD=OFF
 # COMPILER_RT_CAN_EXECUTE_TESTS=ON
 #
@@ -139,7 +139,7 @@ export PATH=/cgnutools/bin:/llvmtools/bin:/bin:/usr/bin
 # COMPILER_RT_SANITIZERS_TO_BUILD=ALL
 # COMPILER_RT_USE_BUILTINS_LIBRARY=ON
 # COMPILER_RT_USE_LIBCXX=ON
-# DEFAULT_SYSROOT=/cgnutools
+# DEFAULT_SYSROOT=/cgnullvmtools
 # LIBCXXABI_ENABLE_ASSERTIONS=ON
 # LIBCXXABI_ENABLE_EXCEPTIONS=ON
 # LIBCXXABI_ENABLE_NEW_DELETE_DEFINITIONS=ON

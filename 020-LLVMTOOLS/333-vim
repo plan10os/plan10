@@ -1,0 +1,16 @@
+# Toolchain: Vim
+# Build and install as mlfs
+# Optional package: Text editor for convenience or trouble shooting
+
+# Configure and use libraries & headers iin /llvmtools
+LDFLAGS="-L/llvmtools/lib" \
+CPPFLAGS="-I/llvmtools/include" \
+./configure --prefix=/llvmtools --enable-gui=no --without-x
+
+# Build and install to toolchain
+make && make install
+
+# Some users use vim as vi
+ln -sv vim /llvmtools/bin/vi 
+
+unset LDFLAGS CPPFLAGS
